@@ -130,3 +130,80 @@ fit |>
 | Borough: Brooklyn  |   40.500 |   0.000 |
 | Borough: Manhattan |   90.254 |   0.000 |
 | Borough: Queens    |   13.206 |   0.145 |
+
+## Diagnostics
+
+Most diagnostics use residuls
+
+``` r
+modelr::add_residuals(nyc_airbnb, fit)
+```
+
+    ## # A tibble: 40,492 × 6
+    ##    price stars borough neighborhood room_type        resid
+    ##    <dbl> <dbl> <chr>   <chr>        <chr>            <dbl>
+    ##  1    99   5   Bronx   City Island  Private room      9.47
+    ##  2   200  NA   Bronx   City Island  Private room     NA   
+    ##  3   300  NA   Bronx   City Island  Entire home/apt  NA   
+    ##  4   125   5   Bronx   City Island  Entire home/apt  35.5 
+    ##  5    69   5   Bronx   City Island  Private room    -20.5 
+    ##  6   125   5   Bronx   City Island  Entire home/apt  35.5 
+    ##  7    85   5   Bronx   City Island  Entire home/apt  -4.53
+    ##  8    39   4.5 Bronx   Allerton     Private room    -34.5 
+    ##  9    95   5   Bronx   Allerton     Entire home/apt   5.47
+    ## 10   125   4.5 Bronx   Allerton     Entire home/apt  51.5 
+    ## # ℹ 40,482 more rows
+
+``` r
+modelr::add_predictions(nyc_airbnb, fit)
+```
+
+    ## # A tibble: 40,492 × 6
+    ##    price stars borough neighborhood room_type        pred
+    ##    <dbl> <dbl> <chr>   <chr>        <chr>           <dbl>
+    ##  1    99   5   Bronx   City Island  Private room     89.5
+    ##  2   200  NA   Bronx   City Island  Private room     NA  
+    ##  3   300  NA   Bronx   City Island  Entire home/apt  NA  
+    ##  4   125   5   Bronx   City Island  Entire home/apt  89.5
+    ##  5    69   5   Bronx   City Island  Private room     89.5
+    ##  6   125   5   Bronx   City Island  Entire home/apt  89.5
+    ##  7    85   5   Bronx   City Island  Entire home/apt  89.5
+    ##  8    39   4.5 Bronx   Allerton     Private room     73.5
+    ##  9    95   5   Bronx   Allerton     Entire home/apt  89.5
+    ## 10   125   4.5 Bronx   Allerton     Entire home/apt  73.5
+    ## # ℹ 40,482 more rows
+
+``` r
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = borough, y = resid)) + geom_violin()
+```
+
+    ## Warning: Removed 9962 rows containing non-finite outside the scale range
+    ## (`stat_ydensity()`).
+
+![](linear-models_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = stars, y = resid)) + geom_point()
+```
+
+    ## Warning: Removed 9962 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](linear-models_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  modelr::add_predictions(fit) |> 
+  ggplot(aes(x=pred, y=resid))+
+  geom_point()
+```
+
+    ## Warning: Removed 9962 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](linear-models_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->

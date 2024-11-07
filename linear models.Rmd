@@ -54,3 +54,35 @@ fit |>
   knitr::kable(digits = 3)
 ```
 
+
+## Diagnostics
+Most diagnostics use residuls
+```{r}
+modelr::add_residuals(nyc_airbnb, fit)
+```
+
+```{r}
+modelr::add_predictions(nyc_airbnb, fit)
+```
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = borough, y = resid)) + geom_violin()
+```
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = stars, y = resid)) + geom_point()
+```
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  modelr::add_predictions(fit) |> 
+  ggplot(aes(x=pred, y=resid))+
+  geom_point()
+
+```
+
