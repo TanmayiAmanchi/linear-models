@@ -86,3 +86,100 @@ nyc_airbnb |>
 
 ```
 
+## Hypothesis Testing
+
+For single coefficients
+```{r}
+fit |>
+  broom::tidy()
+```
+
+```{r}
+fit_null = lm(price ~ stars + borough, data = nyc_airbnb)
+fit_alt = lm(price ~ stars + borough + room_type, data = nyc_airbnb)
+```
+
+```{r}
+anova(fit_null, fit_alt) |> 
+  broom::tidy()
+```
+
+## Do effects differe across boroughs
+First, use lot of interactions
+```{r}
+nyc_airbnb |>
+  lm(price ~ stars + borough + room_type*borough, data = _) |>
+  broom::tidy()
+```
+
+Could just fit separate models
+```{r}
+nyc_airbnb |>
+  filter(borough == "Manhattan")|>
+  lm(price~stars + room_type, data=_)|>
+  broom::tidy()
+```
+
+```{r}
+nyc_airbnb |>
+  filter(borough == "Brooklyn")|>
+  lm(price~stars + room_type, data=_)|>
+  broom::tidy()
+```
+
+## Nesting Data
+```{r}
+nyc_airbnb |> 
+  lm(price ~ stars * borough + room_type * borough, data = _) |> 
+  broom::tidy() |> 
+  knitr::kable(digits = 3)
+```
+
+```{r}
+nest_lm_res =
+  nyc_airbnb |> 
+  nest(data = -borough) |> 
+  mutate(
+    models = map(data, \(df) lm(price ~ stars + room_type, data = df)),
+    results = map(models, broom::tidy)) |> 
+  select(-data, -models) |> 
+  unnest(results)
+```
+
+```{r}
+nest_lm_res =
+  nyc_airbnb |> 
+  nest(data = -borough) |> 
+  mutate(
+    models = map(data, \(df) lm(price ~ stars + room_type, data = df)),
+    results = map(models, broom::tidy)) |> 
+  select(-data, -models) |> 
+  unnest(results)
+```
+
+```{r}
+nest_lm_res |> 
+  select(borough, term, estimate) |> 
+  mutate(term = fct_inorder(term)) |> 
+  pivot_wider(
+    names_from = term, values_from = estimate) |> 
+  knitr::kable(digits = 3)
+```
+
+```{r}
+manhattan_airbnb =
+  nyc_airbnb |> 
+  filter(borough == "Manhattan")
+
+manhattan_nest_lm_res =
+  manhattan_airbnb |> 
+  nest(data = -neighborhood) |> 
+  mutate(
+    models = map(data, \(df) lm(price ~ stars + room_type, data = df)),
+    results = map(models, broom::tidy)) |> 
+  select(-data, -models) |> 
+  unnest(results)
+```
+
+
+
